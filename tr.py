@@ -6,10 +6,10 @@ import sys
 
 try:
     import urllib2
-    ulib2 = True
+    ulib = urllib2
 except:
     import urllib.request
-    ulib2 = False
+    ulib = urllib.request
 
 weechat.register('tr', 'Translator', '0.0.3', 'GPL3', 'Google Translate Script', '', '')
 
@@ -35,17 +35,11 @@ def tr_cb(data, buffer, args):
         '?client=gtx&sl=' + o + '&tl=' + tl + '&dt=t&q=' + t
     url = url.replace(' ', '%20')
 
-    if ulib2:
-        req = urllib2.Request(url)
-    else:
-        req = urllib.request.Request(url)
+    req = ulib.Request(url)
 
     req.add_header('User-Agent', 'Mozilla/5.0')
 
-    if ulib2:
-        response = urllib2.urlopen(req)
-    else:
-        response = urllib.request.urlopen(req)
+    response = ulib.urlopen(req)
 
     html = response.read()
 
@@ -61,6 +55,6 @@ def tr_cb(data, buffer, args):
             weechat.prnt(weechat.current_buffer(), '/tr:\t%s' % tr)
     return weechat.WEECHAT_RC_OK
 
-weechat.hook_command('tr', '', 'lang[,lang] text', \
+weechat.hook_command('tr', 'Google Translator', 'lang[,lang] text',
     'Language codes: https://sites.google.com/site/tomihasa/google-language-codes\n'
-    'Github: https://github.com/nkoster/weechat-translate\n', '', 'tr_cb', '')
+    'Github: https://github.com/nkoster/weechat-translate', '', 'tr_cb', '')
