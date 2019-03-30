@@ -1,10 +1,17 @@
-# -*- coding: utf-8 -*-
-## /tr Language translation in Weechat, by Niels, niels@w3b.net, license is GPL3.
+## Language translation, by Niels, niels@w3b.net, license is GPL3.
+# v0.0.3: Updated to support Python3 -@pX <px@havok.org>
 
 import weechat
-import urllib2
+import sys
 
-weechat.register('tr', 'Translator', '0.0.2', 'GPL3', 'Google Translate Script', '', '')
+try:
+    import urllib2
+    ulib2 = True
+except:
+    import urllib.request
+    ulib2 = False
+
+weechat.register('tr', 'Translator', '0.0.3', 'GPL3', 'Google Translate Script', '', '')
 
 def timer_cb(data, remaining_calls):
     weechat.prnt(weechat.current_buffer(), '%s' % data)
@@ -27,11 +34,26 @@ def tr_cb(data, buffer, args):
     url = 'https://translate.googleapis.com/translate_a/single' + \
         '?client=gtx&sl=' + o + '&tl=' + tl + '&dt=t&q=' + t
     url = url.replace(' ', '%20')
-    req = urllib2.Request(url)
+
+    if ulib2:
+        req = urllib2.Request(url)
+    else:
+        req = urllib.request.Request(url)
+
     req.add_header('User-Agent', 'Mozilla/5.0')
-    response = urllib2.urlopen(req)
+
+    if ulib2:
+        response = urllib2.urlopen(req)
+    else:
+        response = urllib.request.urlopen(req)
+
     html = response.read()
-    tr = html.split('"')[1]
+
+    if sys.version_info >= (3, 3):
+        tr = html.decode().split('"')[1]
+    else:
+        tr = html.split('"')[1]
+
     if tr != 'nl':
         if o == 'nl':
             weechat.command(weechat.current_buffer(), '%s' % tr)
